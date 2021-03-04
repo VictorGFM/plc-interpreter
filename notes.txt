@@ -1,0 +1,7 @@
+
+Yacc pega a expressão e monta a AST
+
+Antes de computar ver as exeções de PlcChecker
+Enquanto computar as PlcInterp
+
+Plc é responsável por start o programa receber o "programa" transformar em String (Lexer?) e interpretala (Yacc?)
