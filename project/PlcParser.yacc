@@ -4,47 +4,49 @@
 
 %pos int
 
-%term VAR
+%term SEMICOL | COLON | DOUBCOLON | COMMA
+    | VAR
+    | EQ | INEQ | LESS | LESSEQ
     | FUN | REC
     | IF | THEN | ELSE
     | MATCH | WITH
-    | REF | HIF 
-    | HEAD | TAIL
+    | EXCLAMATION
+    | MINUS | PLUS | MULTI | DIV
+    | HD | TL
     | ISE
     | PRINT
-    | AND
-    | PLUS | MINUS | MULTI | DIV
-    | EQ | DIF 
-    | SMALLER | SMALL_OR_EQ
-    | CONSTRUCT_LIST
-    | SEMICOL | COL
-    | CINT of int | NAME of string
+    | BINOP
+    | LBRACE | RBRACE
     | LBRACKET | RBRACKET
     | LPARENT | RPARENT
-    | TRUE of bool | FALSE of bool
-    | EOF
-    //Fiz o "mapeamento" até a parte  <atomic expr>::= <const>
+    | DOUBARROW
+    | END
+    | TRUE | FALSE
+    | PIPE
+    | NIL | BOOL | INT
+    | NOT
 
 %nonterm Prog of expr
-            | Expr of expr
-            | Decl of expr
-            | Args of plcVal
-            | Name of plcType
-            | AtomExpr of expr
-            | AppExpr of expr
-            | Const of plcVal
-            | Comps of expr
-            | MatchExpr of expr
-            | CondExpr of expr
-            | Params of expr
-            | TypedVar of plcType
-            | Type of plcType
-            | AtomType of plcType
-            | Types of plcType
+    | Decl of 
+    | Expr of expr
+    | AtomicExpr of 
+    | AppExpr of 
+    | Const of 
+    | Comps of 
+    | MatchExpr of 
+    | CondExpr of 
+    | Args of 
+    | Params of 
+    | TypedVar of 
+    | Type of 
+    | AtomicType of 
+    | Types of 
+    | Name of 
+    | Nat of 
 
-%right SEMICOL
-%left EQ PLUS MINUS MULTI DIV
-%nonassoc
+%right SEMICOL ARROW DOUBCOLON
+%left ELSE BINOP EQ INEQ LESS LESSEQ PLUS MINUS MULTI DIV RBRACKET
+%nonassoc IF NOT HD TL ISE PRINT
 
 %eop EOF
 
@@ -54,18 +56,78 @@
 
 %%
 
-Prog : Expr (Expr)
-| Decl SEMICOL Prog (Let(NAME,Expr, Prog))
+Prog : Expr 
+| Decl SEMICOL Prog 
 
-Decl : VAR NAME EQ Expr ()
-| FUN NAME Args EQ Expr () 
-| FUN REC NAME COL Type EQ Expr()
+Decl : VAR Name EQ Expr 
+| FUN Name Args EQ Expr 
+| FUN REC Name Args COLON Type EQ Expr
 
-Args : LPARENT RPARENT ()
-| LPARENT Params RPARENT (Params)
+Expr : AtomicExpr
+| AppExpr
+| IF Expr THEN Expr ELSE Expr
+| MATCH Expr WITH MatchExpr
+| EXCLAMATION Expr
+| MINUS Expr
+| HEAD Expr
+| TAIL Expr
+| ISE Expr
+| PRINT Expr
+| Expr BINOP Expr
+| Expr PLUS Expr
+| Expr MINUS Expr
+| Expr MULTI Expr
+| Expr DIV Expr
+| Expr EQ Expr
+| Expr INEQ Expr
+| Expr LESS Expr
+| Expr LESSEQ Expr
+| Expr DOUBCOLON Expr
+| Expr SEMICOL Expr
+| Expr LBRACKET Nat RBRACKET 
 
-Const : TRUE 
-| FALSE 
-| CINT (ConI)
+AtomExpr : Const
+| Name
+| LBRACE Prog RBRACE
+| LPARENT Expr RPARENT
+| LPARENT Comps RPARENT
+| FN Args DOUBARROW Expr END
+
+AppExpr : AtomExpr AtomExpr
+| AppExpr AtomExpr
+
+Const : TRUE
+| FALSE
+| Nat
 | LPARENT RPARENT
-| LPARENT LBRACKET Type RBRACKET RPARENT
+| LPARENT Type LBRACKET RBRACKET RPARENT
+
+Comps : Expr COMMA Expr
+| Expr COMMA Comps
+
+MatchExpr : END
+| PIPE CondExpr ARROW Expr MatchExpr
+
+CondExpr : Expr
+| MINUS
+
+Args : LPARENT RPARENT
+| LPARENT Params RPARENT
+
+Params : TypedVar
+| TypedVar COMMA Params
+
+TypedVar : Type Name
+
+Type : AtomicType
+| LPARENT Types RPARENT
+| LBRACKET Type RBRACKET
+| Type ARROW Type
+
+AtomicType : NIL
+| BOOL
+| INT
+| LPARENT Type RPARENT
+
+Types : Type COMMA Type
+| Type COMMA Types
