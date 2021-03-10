@@ -21,7 +21,7 @@
     | LPARENT | RPARENT
     | ARROW | DOUBARROW
     | END
-    | TRUE | FALSE 
+    | TRUE of bool | FALSE of bool 
     | PIPE
     | NIL | BOOL | INT
     | UNDERSCORE
@@ -36,9 +36,8 @@
     | AppExpr of expr
     | Const of expr
     | Comps of expr list
-    | MatchExpr of expr
-    | CondExpr of expr
-
+    | MatchExpr of list
+    | CondExpr of expr option
     | Args of plcType
     | Params of plcType
     | TypedVar of plcType * string
@@ -69,7 +68,7 @@ Decl : VAR NAME EQ Expr SEMICOL Prog (Let(NAME, Expr, Prog))
 Expr : AtomicExpr (AtomicExpr)
 | AppExpr (AppExpr)
 | IF Expr THEN Expr ELSE Expr (If(Expr1, Expr2, Expr3))
-| MATCH Expr WITH MatchExpr (Match(Expr, List()))
+| MATCH Expr WITH MatchExpr (Match(Expr, MatchExpr))
 | NOT Expr (Prim1("!", Expr))
 | MINUS Expr (Prim1("-", Expr))
 | HD Expr (Prim1("hd", Expr))
@@ -103,22 +102,22 @@ Const : TRUE (ConB(TRUE))
 | FALSE (ConB(FALSE))
 | Nat (Nat)
 | LPARENT RPARENT (List([]))
-| LPARENT Type LBRACKET RBRACKET RPARENT ()
+| LPARENT Type LBRACKET RBRACKET RPARENT (ESeq(Type))
 
 Comps : Expr COMMA Expr (Expr1::Expr2::[])
 | Expr COMMA Comps (Expr::Comps)
 
-MatchExpr : END ()
-| PIPE CondExpr ARROW Expr MatchExpr ()
+MatchExpr : END ([])
+| PIPE CondExpr ARROW Expr MatchExpr ((CondExpr, Expr)::MatchExpr)
 
-CondExpr : Expr (Expr)
-| UNDERSCORE ()
+CondExpr : Expr (SOME  Expr)
+| UNDERSCORE (NONE)
 
 Args : LPARENT RPARENT (ListT([]))
 | LPARENT Params RPARENT (Params)
 
-Params : TypedVar (#1TypedVar::[])
-| TypedVar COMMA Params (ListT(#1TypedVar::Params))
+Params : TypedVar (#1TypedVar)
+| TypedVar COMMA Params (ListT(#1TypedVar::Params::[]))
 
 TypedVar : Type NAME (Type, NAME)
 
