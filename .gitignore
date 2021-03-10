@@ -1,0 +1,4 @@
+/.vscode
+*.lex.sml
+*.yacc.sig
+*.yacc.sml

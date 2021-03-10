@@ -7,45 +7,47 @@
 %term SEMICOL | COLON | DOUBCOLON | COMMA
     | VAR
     | EQ | INEQ | LESS | LESSEQ
-    | FUN | REC
+    | FUN | REC | FN
     | IF | THEN | ELSE
     | MATCH | WITH
-    | EXCLAMATION
+    | NOT
     | MINUS | PLUS | MULTI | DIV
     | HD | TL
     | ISE
     | PRINT
-    | BINOP
+    | AND
     | LBRACE | RBRACE
     | LBRACKET | RBRACKET
     | LPARENT | RPARENT
-    | DOUBARROW
+    | ARROW | DOUBARROW
     | END
-    | TRUE | FALSE
+    | TRUE of bool | FALSE of bool
     | PIPE
     | NIL | BOOL | INT
-    | NOT
-
+    | UNDERSCORE
+    | NAME of string
+    | CINT of int
+    | EOF
+    
 %nonterm Prog of expr
-    | Decl of 
+    | Decl of expr
     | Expr of expr
-    | AtomicExpr of 
-    | AppExpr of 
-    | Const of 
-    | Comps of 
-    | MatchExpr of 
-    | CondExpr of 
-    | Args of 
-    | Params of 
-    | TypedVar of 
-    | Type of 
-    | AtomicType of 
-    | Types of 
-    | Name of 
-    | Nat of 
+    | AtomicExpr of expr
+    | AppExpr of expr
+    | Const of expr
+    | Comps of expr list
+    | MatchExpr of expr
+    | CondExpr of expr
+    | Args of expr
+    | Params of expr
+    | TypedVar of expr
+    | Type of plcType
+    | AtomicType of plcType
+    | Types of plcType list
+    | Nat of expr
 
 %right SEMICOL ARROW DOUBCOLON
-%left ELSE BINOP EQ INEQ LESS LESSEQ PLUS MINUS MULTI DIV RBRACKET
+%left ELSE AND EQ INEQ LESS LESSEQ PLUS MINUS MULTI DIV RBRACKET
 %nonassoc IF NOT HD TL ISE PRINT
 
 %eop EOF
@@ -56,78 +58,80 @@
 
 %%
 
-Prog : Expr 
-| Decl SEMICOL Prog 
+Prog : Expr (Expr)
+| Decl (Decl)
 
-Decl : VAR Name EQ Expr 
-| FUN Name Args EQ Expr 
-| FUN REC Name Args COLON Type EQ Expr
+Decl : VAR NAME EQ Expr SEMICOL Prog (Let(NAME, Expr, Prog))
+| FUN NAME Args EQ Expr (Let(NAME, Args, Expr))
+| FUN REC NAME Args COLON Type EQ Expr () 
 
-Expr : AtomicExpr
-| AppExpr
-| IF Expr THEN Expr ELSE Expr
-| MATCH Expr WITH MatchExpr
-| EXCLAMATION Expr
-| MINUS Expr
-| HEAD Expr
-| TAIL Expr
-| ISE Expr
-| PRINT Expr
-| Expr BINOP Expr
-| Expr PLUS Expr
-| Expr MINUS Expr
-| Expr MULTI Expr
-| Expr DIV Expr
-| Expr EQ Expr
-| Expr INEQ Expr
-| Expr LESS Expr
-| Expr LESSEQ Expr
-| Expr DOUBCOLON Expr
-| Expr SEMICOL Expr
-| Expr LBRACKET Nat RBRACKET 
+Expr : AtomicExpr (AtomicExpr)
+| AppExpr (AppExpr)
+| IF Expr THEN Expr ELSE Expr (If(Expr1, Expr2, Expr3))
+| MATCH Expr WITH MatchExpr (Match(Expr, List()))
+| NOT Expr (Prim1("!", Expr))
+| MINUS Expr (Prim1("-", Expr))
+| HD Expr (Prim1("hd", Expr))
+| TL Expr (Prim1("tl", Expr))
+| ISE Expr (Prim1("ise", Expr))
+| PRINT Expr (Prim1("print", Expr))
+| Expr AND Expr (Prim2("&&", Expr1, Expr2))
+| Expr PLUS Expr (Prim2("+", Expr1, Expr2))
+| Expr MINUS Expr (Prim2("-", Expr1, Expr2))
+| Expr MULTI Expr (Prim2("*", Expr1, Expr2))
+| Expr DIV Expr (Prim2("/", Expr1, Expr2))
+| Expr EQ Expr  (Prim2("=", Expr1, Expr2))
+| Expr INEQ Expr (Prim2("!=", Expr1, Expr2))
+| Expr LESS Expr (Prim2("<", Expr1, Expr2))
+| Expr LESSEQ Expr (Prim2("<=", Expr1, Expr2))
+| Expr DOUBCOLON Expr (Prim2("::", Expr1, Expr2))
+| Expr SEMICOL Expr (Prim2(";", Expr1, Expr2))
+| Expr LBRACKET Nat RBRACKET (Item(Nat, Expr)) 
 
-AtomExpr : Const
-| Name
-| LBRACE Prog RBRACE
-| LPARENT Expr RPARENT
-| LPARENT Comps RPARENT
-| FN Args DOUBARROW Expr END
+AtomicExpr : Const (Const)
+| NAME () 
+| LBRACE Prog RBRACE (Prog)
+| LPARENT Expr RPARENT (Expr)
+| LPARENT Comps RPARENT (Comps)
+| FN Args DOUBARROW Expr END (Anon(Args, Expr))
 
-AppExpr : AtomExpr AtomExpr
-| AppExpr AtomExpr
+AppExpr : AtomicExpr AtomicExpr ()
+| AppExpr AtomicExpr ()
 
-Const : TRUE
-| FALSE
-| Nat
-| LPARENT RPARENT
-| LPARENT Type LBRACKET RBRACKET RPARENT
+Const : TRUE (ConB(TRUE))
+| FALSE (ConB(FALSE))
+| Nat (Nat)
+| LPARENT RPARENT (List([]))
+| LPARENT Type LBRACKET RBRACKET RPARENT ()
 
-Comps : Expr COMMA Expr
-| Expr COMMA Comps
+Comps : Expr COMMA Expr (Expr1::Expr2::[])
+| Expr COMMA Comps (Expr::Comps)
 
-MatchExpr : END
-| PIPE CondExpr ARROW Expr MatchExpr
+MatchExpr : END ()
+| PIPE CondExpr ARROW Expr MatchExpr ()
 
-CondExpr : Expr
-| MINUS
+CondExpr : Expr (Expr)
+| UNDERSCORE ()
 
-Args : LPARENT RPARENT
-| LPARENT Params RPARENT
+Args : LPARENT RPARENT ()
+| LPARENT Params RPARENT (Params)
 
-Params : TypedVar
-| TypedVar COMMA Params
+Params : TypedVar (TypedVar)
+| TypedVar COMMA Params (List(TypedVar::Params::[]))
 
-TypedVar : Type Name
+TypedVar : Type NAME (Type, NAME)
 
-Type : AtomicType
-| LPARENT Types RPARENT
-| LBRACKET Type RBRACKET
-| Type ARROW Type
+Type : AtomicType (AtomicType)
+| LPARENT Types RPARENT (ListT(Types))
+| LBRACKET Type RBRACKET (SeqT(Type))
+| Type ARROW Type (FunT(Type, Type))
 
-AtomicType : NIL
-| BOOL
-| INT
-| LPARENT Type RPARENT
+AtomicType : NIL (ListT([]))
+| BOOL (BoolT)
+| INT (IntT)
+| LPARENT Type RPARENT (Type)
 
-Types : Type COMMA Type
-| Type COMMA Types
+Types : Type COMMA Type (Type1::Type2::[])
+| Type COMMA Types (Type::Types)
+
+Nat : CINT (ConI(CINT))
