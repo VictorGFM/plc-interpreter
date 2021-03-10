@@ -17,7 +17,7 @@ Control.Print.printDepth  := 1000;
 Control.Print.stringDepth := 1000;
 
 open PlcFrontEnd;
-
+(*
 fromString "15";
 fromString "true";
 fromString "()";
@@ -33,5 +33,5 @@ fromFile ("example.plc");
 
 use "testParserCases.sml"
 
-(* Try to add a systematic way of using the test cases in
+ Try to add a systematic way of using the test cases in
    testParserCases to stress test your parser *)

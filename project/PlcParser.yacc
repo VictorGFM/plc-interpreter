@@ -21,7 +21,7 @@
     | LPARENT | RPARENT
     | ARROW | DOUBARROW
     | END
-    | TRUE of bool | FALSE of bool
+    | TRUE | FALSE 
     | PIPE
     | NIL | BOOL | INT
     | UNDERSCORE
@@ -38,9 +38,10 @@
     | Comps of expr list
     | MatchExpr of expr
     | CondExpr of expr
-    | Args of expr
-    | Params of expr
-    | TypedVar of expr
+
+    | Args of plcType
+    | Params of plcType
+    | TypedVar of plcType * string
     | Type of plcType
     | AtomicType of plcType
     | Types of plcType list
@@ -62,8 +63,8 @@ Prog : Expr (Expr)
 | Decl (Decl)
 
 Decl : VAR NAME EQ Expr SEMICOL Prog (Let(NAME, Expr, Prog))
-| FUN NAME Args EQ Expr (Let(NAME, Args, Expr))
-| FUN REC NAME Args COLON Type EQ Expr () 
+| FUN NAME Args EQ Expr SEMICOL Prog (Let(NAME, Anon(Args, $list, Expr), Prog))
+| FUN REC NAME Args COLON Type EQ Expr SEMICOL Prog (Letrec(NAME, Args, Type, Expr, Prog)) 
 
 Expr : AtomicExpr (AtomicExpr)
 | AppExpr (AppExpr)
@@ -113,11 +114,11 @@ MatchExpr : END ()
 CondExpr : Expr (Expr)
 | UNDERSCORE ()
 
-Args : LPARENT RPARENT ()
+Args : LPARENT RPARENT (ListT([]))
 | LPARENT Params RPARENT (Params)
 
-Params : TypedVar (TypedVar)
-| TypedVar COMMA Params (List(TypedVar::Params::[]))
+Params : TypedVar (#1TypedVar::[])
+| TypedVar COMMA Params (ListT(#1TypedVar::Params))
 
 TypedVar : Type NAME (Type, NAME)
 

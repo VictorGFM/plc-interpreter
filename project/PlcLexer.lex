@@ -28,9 +28,8 @@ fun keyword (s, lpos, rpos) =
     | "then" => THEN(lpos, rpos)
     | "tl" => TL(lpos, rpos)
     | "true" => TRUE(lpos, rpos)
-    | "var" => VAR(lpos, rpos)
     | "with" => WITH(lpos, rpos)
-    | "_" => (UNDERSCORE(yypos, yypos));
+    | "_" => (UNDERSCORE(lpos, rpos))
     | _ => NAME(s,lpos, rpos)
 
 (* A function to print a message error on the screen. *)
@@ -57,15 +56,17 @@ fun eof () = Tokens.EOF(0,0)
 fun init() = ()
 
 %%
+
 %header (functor PlcLexerFun(structure Tokens: PlcParser_TOKENS));
 whitespace=[\ \t];
 nat=[0-9]+;
 name=['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*;
+
 %%
 
 \n => (lineNumber := !lineNumber + 1; lex());
 {whitespace}+ => (lex());
-{nat}+ => (CINT(strToInt(yytext), yypos, yypos));
+{nat} => (CINT(strToInt(yytext), yypos, yypos));
 {name} => (keyword(yytext, yypos, yypos));
 "+" => (PLUS(yypos,yypos));
 "-" => (MINUS(yypos,yypos));
@@ -77,12 +78,11 @@ name=['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*;
 "]" => (RBRACKET(yypos, yypos));
 "(" => (LPARENT(yypos, yypos));
 ")" => (RPARENT(yypos, yypos));
-"true" => (TRUE(yypos, yypos));
-"false" => (FALSE(yypos, yypos));
 "=" => (EQ(yypos, yypos));
 "!=" => (INEQ(yypos, yypos));
 "&&" => (AND(yypos, yypos));
 "!" => (NOT(yypos, yypos));
+"," => (COMMA(yypos, yypos));
 ";" => (SEMICOL(yypos, yypos));
 "->" => (ARROW(yypos, yypos));
 "=>" => (DOUBARROW(yypos, yypos));
