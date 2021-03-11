@@ -5,9 +5,8 @@
 %pos int
 
 %term SEMICOL | COLON | DOUBCOLON | COMMA
-    | VAR
+    | VAR | FUN | REC | FN
     | EQ | INEQ | LESS | LESSEQ
-    | FUN | REC | FN
     | IF | THEN | ELSE
     | MATCH | WITH
     | NOT
@@ -57,7 +56,7 @@
 %left PLUS MINUS
 %left MULTI DIV
 %nonassoc NOT HD TL ISE PRINT
-%left RBRACKET
+%left LBRACKET
 
 %eop EOF
 
