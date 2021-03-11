@@ -60,8 +60,7 @@ fun init() = ()
 %header (functor PlcLexerFun(structure Tokens: PlcParser_TOKENS));
 whitespace=[\ \t];
 nat=[0-9]+;
-name=['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*;
-
+name=[a-zA-Z_][a-zA-Z_0-9]*;
 %%
 
 \n => (lineNumber := !lineNumber + 1; lex());
@@ -84,6 +83,8 @@ name=['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*;
 "!" => (NOT(yypos, yypos));
 "," => (COMMA(yypos, yypos));
 ";" => (SEMICOL(yypos, yypos));
+"_" => (UNDERSCORE(yypos, yypos));
+"|" => (PIPE(yypos, yypos));
 "->" => (ARROW(yypos, yypos));
 "=>" => (DOUBARROW(yypos, yypos));
 "<" => (LESS(yypos, yypos));
