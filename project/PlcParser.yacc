@@ -35,7 +35,7 @@
     | AtomicExpr of expr
     | AppExpr of expr
     | Const of expr
-    | Comps of expr
+    | Comps of expr list
     | MatchExpr of (expr option * expr) list
     | CondExpr of expr option
     | Args of (plcType * string) list
@@ -47,9 +47,17 @@
     | Nat of int
     | Name of string
 
-%right SEMICOL ARROW DOUBCOLON
-%left ELSE AND EQ INEQ LESS LESSEQ PLUS MINUS MULTI DIV RBRACKET
-%nonassoc IF NOT HD TL ISE PRINT
+%right SEMICOL ARROW 
+%nonassoc IF
+%left ELSE
+%left AND
+%left EQ INEQ
+%left LESS LESSEQ
+%right DOUBCOLON
+%left PLUS MINUS
+%left MULTI DIV
+%nonassoc NOT HD TL ISE PRINT
+%left RBRACKET
 
 %eop EOF
 
@@ -93,10 +101,10 @@ AtomicExpr : Const (Const)
 | Name (Var(Name)) 
 | LBRACE Prog RBRACE (Prog) 
 | LPARENT Expr RPARENT (Expr)
-| LPARENT Comps RPARENT (Comps)
+| LPARENT Comps RPARENT (List(Comps))
 | FN Args DOUBARROW Expr END (makeAnon(Args, Expr))
 
-AppExpr : AtomicExpr AtomicExpr (Call(AtomicExpr, AtomicExpr)) 
+AppExpr : AtomicExpr AtomicExpr (Call(AtomicExpr1, AtomicExpr2)) 
 | AppExpr AtomicExpr (Call(AppExpr, AtomicExpr))
 
 Const : TRUE (ConB(TRUE))
@@ -105,13 +113,13 @@ Const : TRUE (ConB(TRUE))
 | LPARENT RPARENT (List([]))
 | LPARENT Type LBRACKET RBRACKET RPARENT (ESeq(Type))
 
-Comps : Expr COMMA Expr (List(Expr1::Expr2::[]))
-| Expr COMMA Comps (List(Expr::Comps::[]))
+Comps : Expr COMMA Expr (Expr1::Expr2::[])
+| Expr COMMA Comps (Expr::Comps)
 
 MatchExpr : END ([])
 | PIPE CondExpr ARROW Expr MatchExpr ((CondExpr,Expr)::MatchExpr)
 
-CondExpr : Expr (SOME Expr)
+CondExpr : Expr (SOME(Expr))
 | UNDERSCORE (NONE)
 
 Args : LPARENT RPARENT ([])
@@ -125,7 +133,7 @@ TypedVar : Type Name (Type, Name)
 Type : AtomicType (AtomicType)
 | LPARENT Types RPARENT (ListT(Types))
 | LBRACKET Type RBRACKET (SeqT(Type))
-| Type ARROW Type (FunT(Type, Type))
+| Type ARROW Type (FunT(Type1, Type2))
 
 AtomicType : NIL (ListT([]))
 | BOOL (BoolT)
