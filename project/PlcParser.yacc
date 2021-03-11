@@ -35,16 +35,17 @@
     | AtomicExpr of expr
     | AppExpr of expr
     | Const of expr
-    | Comps of expr list
-    | MatchExpr of list
+    | Comps of expr
+    | MatchExpr of (expr option * expr) list
     | CondExpr of expr option
-    | Args of plcType
-    | Params of plcType
+    | Args of (plcType * string) list
+    | Params of (plcType * string) list
     | TypedVar of plcType * string
     | Type of plcType
     | AtomicType of plcType
     | Types of plcType list
-    | Nat of expr
+    | Nat of int
+    | Name of string
 
 %right SEMICOL ARROW DOUBCOLON
 %left ELSE AND EQ INEQ LESS LESSEQ PLUS MINUS MULTI DIV RBRACKET
@@ -61,9 +62,9 @@
 Prog : Expr (Expr)
 | Decl (Decl)
 
-Decl : VAR NAME EQ Expr SEMICOL Prog (Let(NAME, Expr, Prog))
-| FUN NAME Args EQ Expr SEMICOL Prog (Let(NAME, Anon(Args, $list, Expr), Prog))
-| FUN REC NAME Args COLON Type EQ Expr SEMICOL Prog (Letrec(NAME, Args, Type, Expr, Prog)) 
+Decl : VAR Name EQ Expr SEMICOL Prog (Let(Name, Expr, Prog))
+| FUN Name Args EQ Expr SEMICOL Prog (Let(Name, makeAnon(Args, Expr), Prog))
+| FUN REC Name Args COLON Type EQ Expr SEMICOL Prog (makeFun(Name, Args, Type, Expr, Prog)) 
 
 Expr : AtomicExpr (AtomicExpr)
 | AppExpr (AppExpr)
@@ -89,37 +90,37 @@ Expr : AtomicExpr (AtomicExpr)
 | Expr LBRACKET Nat RBRACKET (Item(Nat, Expr)) 
 
 AtomicExpr : Const (Const)
-| NAME () 
-| LBRACE Prog RBRACE (Prog)
+| Name (Var(Name)) 
+| LBRACE Prog RBRACE (Prog) 
 | LPARENT Expr RPARENT (Expr)
 | LPARENT Comps RPARENT (Comps)
-| FN Args DOUBARROW Expr END (Anon(Args, Expr))
+| FN Args DOUBARROW Expr END (makeAnon(Args, Expr))
 
-AppExpr : AtomicExpr AtomicExpr ()
-| AppExpr AtomicExpr ()
+AppExpr : AtomicExpr AtomicExpr (Call(AtomicExpr, AtomicExpr)) 
+| AppExpr AtomicExpr (Call(AppExpr, AtomicExpr))
 
 Const : TRUE (ConB(TRUE))
 | FALSE (ConB(FALSE))
-| Nat (Nat)
+| Nat (ConI(Nat))
 | LPARENT RPARENT (List([]))
 | LPARENT Type LBRACKET RBRACKET RPARENT (ESeq(Type))
 
-Comps : Expr COMMA Expr (Expr1::Expr2::[])
-| Expr COMMA Comps (Expr::Comps)
+Comps : Expr COMMA Expr (List(Expr1::Expr2::[]))
+| Expr COMMA Comps (List(Expr::Comps::[]))
 
 MatchExpr : END ([])
-| PIPE CondExpr ARROW Expr MatchExpr ((CondExpr, Expr)::MatchExpr)
+| PIPE CondExpr ARROW Expr MatchExpr ((CondExpr,Expr)::MatchExpr)
 
-CondExpr : Expr (SOME  Expr)
+CondExpr : Expr (SOME Expr)
 | UNDERSCORE (NONE)
 
-Args : LPARENT RPARENT (ListT([]))
+Args : LPARENT RPARENT ([])
 | LPARENT Params RPARENT (Params)
 
-Params : TypedVar (#1TypedVar)
-| TypedVar COMMA Params (ListT(#1TypedVar::Params::[]))
+Params : TypedVar (TypedVar::[])
+| TypedVar COMMA Params (TypedVar::Params)
 
-TypedVar : Type NAME (Type, NAME)
+TypedVar : Type Name (Type, Name)
 
 Type : AtomicType (AtomicType)
 | LPARENT Types RPARENT (ListT(Types))
@@ -134,4 +135,6 @@ AtomicType : NIL (ListT([]))
 Types : Type COMMA Type (Type1::Type2::[])
 | Type COMMA Types (Type::Types)
 
-Nat : CINT (ConI(CINT))
+Nat: CINT (CINT)
+
+Name: NAME (NAME)
