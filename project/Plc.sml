@@ -27,29 +27,27 @@ val ExceptionMessageSymbolNotFound = "EXCEPTION: SYMBOL NOT FOUND!"
 
 fun run(e:expr) : string = 
     let
-        val exprType = let in teval e [] end
-        handle EmptySeq => let val p = print(ExceptionMessageEmptySeq^"\n") in raise EmptySeq end
-            | UnknownType => let val p = print(ExceptionMessageUnknownType^"\n") in raise UnknownType end
-            | NotEqTypes => let val p = print(ExceptionMessageNotEqTypes^"\n") in raise NotEqTypes end
-            | WrongRetType => let val p = print(ExceptionMessageWrongRetType^"\n") in raise WrongRetType end
-            | DiffBrTypes => let val p = print(ExceptionMessageDiffBrTypes^"\n") in raise DiffBrTypes end
-            | IfCondNotBool => let val p = print(ExceptionMessageIfCondNotBool^"\n") in raise IfCondNotBool end
-            | NoMatchResults => let val p = print(ExceptionMessageNoMatchResults^"\n") in raise NoMatchResults end
-            | MatchResTypeDiff => let val p = print(ExceptionMessageMatchResTypeDiff^"\n") in raise MatchResTypeDiff end
-            | MatchCondTypesDiff => let val p = print(ExceptionMessageMatchCondTypesDiff^"\n") in raise MatchCondTypesDiff end
-            | CallTypeMisM => let val p = print(ExceptionMessageCallTypeMisM^"\n") in raise CallTypeMisM end
-            | NotFunc => let val p = print(ExceptionMessageNotFunc^"\n") in raise NotFunc end
-            | ListOutOfRange => let val p = print(ExceptionMessageListOutOfRange^"\n") in raise ListOutOfRange end
-            | OpNonList => let val p = print(ExceptionMessageOpNonList^"\n") in raise OpNonList end
-            | SymbolNotFound => let val p = print(ExceptionMessageSymbolNotFound^"\n") in raise SymbolNotFound end
-
-        val exprValue = let in eval e [] end 
-        handle Impossible => let val p = print(ExceptionMessageImpossible^"\n") in raise Impossible end
-            | HDEmptySeq => let val p = print(ExceptionMessageHDEmptySeq^"\n") in raise HDEmptySeq end
-            | TLEmptySeq => let val p = print(ExceptionMessageTLEmptySeq^"\n") in raise TLEmptySeq end
-            | ValueNotFoundInMatch => let val p = print(ExceptionMessageValueNotFoundInMatch^"\n") in raise ValueNotFoundInMatch end
-            | NotAFunc => let val p = print(ExceptionMessageNotAFunc^"\n") in raise NotAFunc end
-            | SymbolNotFound => let val p = print(ExceptionMessageSymbolNotFound^"\n") in raise SymbolNotFound end
+        val exprType = teval e []
+        val exprValue = eval e []
     in
         val2string(exprValue) ^ " : " ^ type2string(exprType)
     end
+    handle EmptySeq => ExceptionMessageEmptySeq 
+            | UnknownType => ExceptionMessageUnknownType
+            | NotEqTypes => ExceptionMessageNotEqTypes
+            | WrongRetType => ExceptionMessageWrongRetType
+            | DiffBrTypes => ExceptionMessageDiffBrTypes
+            | IfCondNotBool => ExceptionMessageIfCondNotBool
+            | NoMatchResults => ExceptionMessageNoMatchResults
+            | MatchResTypeDiff => ExceptionMessageMatchResTypeDiff
+            | MatchCondTypesDiff => ExceptionMessageMatchCondTypesDiff
+            | CallTypeMisM => ExceptionMessageCallTypeMisM
+            | NotFunc => ExceptionMessageNotFunc
+            | ListOutOfRange => ExceptionMessageListOutOfRange
+            | OpNonList => ExceptionMessageOpNonList
+            | Impossible => ExceptionMessageImpossible
+            | HDEmptySeq => ExceptionMessageHDEmptySeq
+            | TLEmptySeq => ExceptionMessageTLEmptySeq
+            | ValueNotFoundInMatch => ExceptionMessageValueNotFoundInMatch
+            | NotAFunc => ExceptionMessageNotAFunc
+            | SymbolNotFound => ExceptionMessageSymbolNotFound

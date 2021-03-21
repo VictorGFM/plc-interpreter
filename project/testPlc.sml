@@ -29,25 +29,6 @@ fun testCases (sourceCode:string, expected:string) : string =
   in
     if (observed = expected) then "V" else sourceCode
   end
-  handle EmptySeq => if (ExceptionMessageEmptySeq = expected) then "V" else sourceCode
-    | UnknownType => if (ExceptionMessageUnknownType = expected) then "V" else sourceCode
-    | NotEqTypes => if (ExceptionMessageNotEqTypes = expected) then "V" else sourceCode
-    | WrongRetType => if (ExceptionMessageWrongRetType = expected) then "V" else sourceCode
-    | DiffBrTypes => if (ExceptionMessageDiffBrTypes = expected) then "V" else sourceCode
-    | IfCondNotBool => if (ExceptionMessageIfCondNotBool = expected) then "V" else sourceCode
-    | NoMatchResults => if (ExceptionMessageNoMatchResults = expected) then "V" else sourceCode
-    | MatchResTypeDiff => if (ExceptionMessageMatchResTypeDiff = expected) then "V" else sourceCode
-    | MatchCondTypesDiff => if (ExceptionMessageMatchCondTypesDiff = expected) then "V" else sourceCode
-    | CallTypeMisM => if (ExceptionMessageCallTypeMisM = expected) then "V" else sourceCode
-    | NotFunc => if (ExceptionMessageNotFunc = expected) then "V" else sourceCode
-    | ListOutOfRange => if (ExceptionMessageListOutOfRange = expected) then "V" else sourceCode
-    | OpNonList => if (ExceptionMessageOpNonList = expected) then "V" else sourceCode
-    | Impossible => if (ExceptionMessageImpossible = expected) then "V" else sourceCode
-    | HDEmptySeq => if (ExceptionMessageHDEmptySeq = expected) then "V" else sourceCode
-    | TLEmptySeq => if (ExceptionMessageTLEmptySeq = expected) then "V" else sourceCode
-    | ValueNotFoundInMatch => if (ExceptionMessageValueNotFoundInMatch = expected) then "V" else sourceCode
-    | NotAFunc => if (ExceptionMessageNotAFunc = expected) then "V" else sourceCode
-    | SymbolNotFound => if (ExceptionMessageSymbolNotFound = expected) then "V" else sourceCode
 
 val results = map (fn (s,e) => testCases(s, e)) cases;
 

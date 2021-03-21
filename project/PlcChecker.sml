@@ -34,9 +34,8 @@ fun teval (e:expr) (env:plcType env) : plcType =
         val envFun = (funName, FunT(argsType, returnType))
         val envArgs = (argsName, argsType)
         val type1 = teval expr1 (envFun::envArgs::env)
-        val type2 = teval expr2 (envFun::env)
       in
-        if(type1 = returnType) then type2 else raise WrongRetType
+        if(type1 = returnType) then teval expr2 (envFun::env) else raise WrongRetType
       end
     | Anon(argsType, argsName, expr1) =>
       let
@@ -94,8 +93,8 @@ fun teval (e:expr) (env:plcType env) : plcType =
         val type1 = teval expr1 env
       in
         case operator of
-          ("!") => if(type1 = BoolT) then BoolT else raise CallTypeMisM
-        | ("-") => if(type1 = IntT) then IntT else raise CallTypeMisM
+          ("!") => if(type1 = BoolT) then BoolT else raise UnknownType
+        | ("-") => if(type1 = IntT) then IntT else raise UnknownType
         | ("hd") => 
           let in
             case expr1 of
@@ -104,7 +103,7 @@ fun teval (e:expr) (env:plcType env) : plcType =
               let in
                 case type1 of
                   SeqT(t) => t
-                | _ => raise CallTypeMisM
+                | _ => raise UnknownType
               end
           end
         | ("tl") => 
@@ -115,14 +114,14 @@ fun teval (e:expr) (env:plcType env) : plcType =
               let in
                 case type1 of
                   SeqT(t) => SeqT(t)
-                | _ => raise CallTypeMisM
+                | _ => raise UnknownType
               end
           end
         | ("ise") => 
           let in
             case type1 of
               SeqT(t) => BoolT
-            | _ => raise CallTypeMisM
+            | _ => raise UnknownType
           end
         | ("print") => ListT([])
         | _ => raise UnknownType
@@ -133,14 +132,14 @@ fun teval (e:expr) (env:plcType env) : plcType =
         val type2 = teval expr2 env
       in
         case operator of
-            ("&&") => if(type1 = type2) then BoolT else raise NotEqTypes
-          | ("::") => if (type2 = SeqT(type1)) then SeqT(type1) else raise CallTypeMisM
-          | ("+") => if(type1=type2 andalso type1=IntT) then IntT else raise CallTypeMisM
-          | ("-") => if(type1=type2 andalso type1=IntT) then IntT else raise CallTypeMisM
-          | ("*") => if(type1=type2 andalso type1=IntT) then IntT else raise CallTypeMisM
-          | ("/") => if(type1=type2 andalso type1=IntT) then IntT else raise CallTypeMisM
-          | ("<") => if(type1=type2 andalso type1=IntT) then BoolT else raise CallTypeMisM
-          | ("<=") => if(type1=type2 andalso type1=IntT) then BoolT else raise CallTypeMisM
+            ("&&") => if(type1 = type2) then BoolT else raise UnknownType
+          | ("::") => if (type2 = SeqT(type1)) then SeqT(type1) else raise UnknownType
+          | ("+") => if(type1=type2 andalso type1=IntT) then IntT else raise UnknownType
+          | ("-") => if(type1=type2 andalso type1=IntT) then IntT else raise UnknownType
+          | ("*") => if(type1=type2 andalso type1=IntT) then IntT else raise UnknownType
+          | ("/") => if(type1=type2 andalso type1=IntT) then IntT else raise UnknownType
+          | ("<") => if(type1=type2 andalso type1=IntT) then BoolT else raise UnknownType
+          | ("<=") => if(type1=type2 andalso type1=IntT) then BoolT else raise UnknownType
           | ("=") => if(type1 <> type2) then raise NotEqTypes else
             let in
               case type1 of

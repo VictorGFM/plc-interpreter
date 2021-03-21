@@ -26,7 +26,7 @@ fun eval (e:expr) (p:plcVal env) : plcVal =
       in
         eval expr2 closureEnv
       end
-    | Anon(argsType, argsName, expr1) => Clos("", argsName, expr1, p) (*TODO*)
+    | Anon(argsType, argsName, expr1) => Clos("", argsName, expr1, p)
     | Call(expr1, expr2) =>
       let
         val value1 = eval expr1 p
@@ -194,8 +194,8 @@ fun eval (e:expr) (p:plcVal env) : plcVal =
             in
               if (index > 0 andalso index <= listSize) 
               then List.nth(valueList, (index-1)) 
-              else raise ListOutOfRange
+              else raise Impossible
             end
-        | _ => raise OpNonList
+        | _ => raise Impossible
       end
     | _ => raise Impossible

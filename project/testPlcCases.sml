@@ -111,6 +111,13 @@ val cases =
         (s, e)
     end
   ) ::
+  ((*Unknown type for operator +*)
+    let val s = "3 + true";
+        val e = ExceptionMessageUnknownType
+    in
+        (s, e)
+    end
+  ) ::
   ((*Comparison between different types*)
     let val s = "true = 7";
         val e = ExceptionMessageNotEqTypes
