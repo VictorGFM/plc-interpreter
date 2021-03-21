@@ -22,9 +22,12 @@ val ExceptionMessageTLEmptySeq = "EXCEPTION: TRYING TO ACCESS TAIL OF EMPTY SEQU
 val ExceptionMessageValueNotFoundInMatch = "EXCEPTION: VALUE NOT FOUND IN MATCH EXPRESSION!"
 val ExceptionMessageNotAFunc = "EXCEPTION: TRYING TO CALL A NON FUNCTION TYPE! (INTERPRETER)"
 
+(*Environ*)
+val ExceptionMessageSymbolNotFound = "EXCEPTION: SYMBOL NOT FOUND!"
+
 fun run(e:expr) : string = 
     let
-        val exprType = let in teval(e, []) end
+        val exprType = let in teval e [] end
         handle EmptySeq => let val p = print(ExceptionMessageEmptySeq^"\n") in raise EmptySeq end
             | UnknownType => let val p = print(ExceptionMessageUnknownType^"\n") in raise UnknownType end
             | NotEqTypes => let val p = print(ExceptionMessageNotEqTypes^"\n") in raise NotEqTypes end
@@ -38,13 +41,15 @@ fun run(e:expr) : string =
             | NotFunc => let val p = print(ExceptionMessageNotFunc^"\n") in raise NotFunc end
             | ListOutOfRange => let val p = print(ExceptionMessageListOutOfRange^"\n") in raise ListOutOfRange end
             | OpNonList => let val p = print(ExceptionMessageOpNonList^"\n") in raise OpNonList end
+            | SymbolNotFound => let val p = print(ExceptionMessageSymbolNotFound^"\n") in raise SymbolNotFound end
 
-        val exprValue = let in eval(e, []) end 
+        val exprValue = let in eval e [] end 
         handle Impossible => let val p = print(ExceptionMessageImpossible^"\n") in raise Impossible end
             | HDEmptySeq => let val p = print(ExceptionMessageHDEmptySeq^"\n") in raise HDEmptySeq end
             | TLEmptySeq => let val p = print(ExceptionMessageTLEmptySeq^"\n") in raise TLEmptySeq end
             | ValueNotFoundInMatch => let val p = print(ExceptionMessageValueNotFoundInMatch^"\n") in raise ValueNotFoundInMatch end
             | NotAFunc => let val p = print(ExceptionMessageNotAFunc^"\n") in raise NotAFunc end
+            | SymbolNotFound => let val p = print(ExceptionMessageSymbolNotFound^"\n") in raise SymbolNotFound end
     in
         val2string(exprValue) ^ " : " ^ type2string(exprType)
     end

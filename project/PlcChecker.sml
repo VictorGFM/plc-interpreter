@@ -14,18 +14,18 @@ exception NotFunc
 exception ListOutOfRange 
 exception OpNonList 
 
-fun teval(e:expr, env:plcType env) : plcType = 
+fun teval (e:expr) (env:plcType env) : plcType = 
     case e of
       Var(varName) => lookup env varName
     | ConI(_) => IntT 
     | ConB(_) => BoolT 
     | List([]) => ListT([])
-    | List(l) => ListT(map (fn (item) => teval(item, env)) l)
+    | List(l) => ListT(map (fn (item) => teval item env) l)
     | ESeq (SeqT t) => SeqT(t)
     | Let(varName, expr1, expr2) => 
       let
-        val type1 = teval(expr1, env)
-        val type2 = teval(expr2, ((varName, type1)::env))
+        val type1 = teval expr1 env
+        val type2 = teval expr2 ((varName, type1)::env)
       in
         type2
       end
@@ -33,21 +33,21 @@ fun teval(e:expr, env:plcType env) : plcType =
       let
         val envFun = (funName, FunT(argsType, returnType))
         val envArgs = (argsName, argsType)
-        val type1 = teval(expr1, (envFun::envArgs::env))
-        val type2 = teval(expr2, (envFun::env))
+        val type1 = teval expr1 (envFun::envArgs::env)
+        val type2 = teval expr2 (envFun::env)
       in
         if(type1 = returnType) then type2 else raise WrongRetType
       end
     | Anon(argsType, argsName, expr1) =>
       let
-        val type1 = teval(expr1, ((argsName, argsType)::env))
+        val type1 = teval expr1 ((argsName, argsType)::env)
       in
         FunT(argsType, type1)
       end
     | Call(expr1, expr2) =>
       let
-        val type1 = teval(expr1, env)
-        val type2 = teval(expr2, env)
+        val type1 = teval expr1 env
+        val type2 = teval expr2 env
       in
         case type1 of
           FunT(argsType, returnType) => 
@@ -56,9 +56,9 @@ fun teval(e:expr, env:plcType env) : plcType =
       end
     | If(expr1, expr2, expr3) =>
       let
-        val type1 = teval(expr1, env)
-        val type2 = teval(expr2, env)
-        val type3 = teval(expr3, env)
+        val type1 = teval expr1 env
+        val type2 = teval expr2 env
+        val type3 = teval expr3 env
       in
         if(type1 <> BoolT) 
           then raise IfCondNotBool 
@@ -71,15 +71,15 @@ fun teval(e:expr, env:plcType env) : plcType =
       if(matchExpr = []) then raise NoMatchResults 
       else 
         let
-          val exprType = teval(expr, env)
+          val exprType = teval expr env
           val equalCondResultTypes = fn (condExpr, resultExpr) => ( 
             case condExpr of
-              NONE => teval(resultExpr, env)
+              NONE => teval resultExpr env
             | SOME(e) => 
               let
-                val condType = teval(e, env)
+                val condType = teval e env
               in
-                if (condType = exprType) then teval(resultExpr, env) else raise MatchCondTypesDiff
+                if (condType = exprType) then teval resultExpr env else raise MatchCondTypesDiff
               end
           )
           val resultTypesList = map equalCondResultTypes matchExpr
@@ -91,7 +91,7 @@ fun teval(e:expr, env:plcType env) : plcType =
         end
     | Prim1(operator, expr1) =>
       let
-        val type1 = teval(expr1, env)
+        val type1 = teval expr1 env
       in
         case operator of
           ("!") => if(type1 = BoolT) then BoolT else raise CallTypeMisM
@@ -129,8 +129,8 @@ fun teval(e:expr, env:plcType env) : plcType =
       end
     | Prim2(operator, expr1, expr2) =>
       let
-        val type1 = teval(expr1, env)
-        val type2 = teval(expr2, env)
+        val type1 = teval expr1 env
+        val type2 = teval expr2 env
       in
         case operator of
             ("&&") => if(type1 = type2) then BoolT else raise NotEqTypes
@@ -202,7 +202,7 @@ fun teval(e:expr, env:plcType env) : plcType =
       end
     | Item(index, expr1) => 
       let
-        val type1 = teval(expr1, env)
+        val type1 = teval expr1 env
       in
         case type1 of
           ListT(typeList) => 

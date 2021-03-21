@@ -6,60 +6,60 @@ exception TLEmptySeq
 exception ValueNotFoundInMatch 
 exception NotAFunc 
 
-fun eval (e:expr, env:plcVal env) : plcVal = 
+fun eval (e:expr) (p:plcVal env) : plcVal = 
     case e of
-      Var(varName) => lookup env varName
+      Var(varName) => lookup p varName
     | ConI(n) => IntV(n) 
     | ConB(b) => BoolV(b) 
     | List([]) => ListV([])
-    | List(l) => ListV(map (fn (item) => eval(item, env)) l)
+    | List(l) => ListV(map (fn (item) => eval item p) l)
     | ESeq (SeqT t) => SeqV([])
     | Let(varName, expr1, expr2) => 
       let
-        val value1 = eval(expr1, env)
+        val value1 = eval expr1 p
       in
-        eval(expr2, ((varName, value1)::env))
+        eval expr2 ((varName, value1)::p)
       end
     | Letrec(funName, argsType, argsName, returnType, expr1, expr2) =>
       let 
-        val closureEnv = (funName, Clos(funName, argsName, expr1, env))::env
+        val closureEnv = (funName, Clos(funName, argsName, expr1, p))::p
       in
-        eval(expr2, closureEnv)
+        eval expr2 closureEnv
       end
-    | Anon(argsType, argsName, expr1) => Clos("", argsName, expr1, env) (*TODO*)
+    | Anon(argsType, argsName, expr1) => Clos("", argsName, expr1, p) (*TODO*)
     | Call(expr1, expr2) =>
       let
-        val value1 = eval(expr1, env)
+        val value1 = eval expr1 p
       in
         case value1 of
           Clos(funName, argsName, funExpr, closEnv) => 
             let
-              val value2 = eval(expr2, env)
+              val value2 = eval expr2 p
               val funEnv = (funName, value1)::(argsName, value2)::closEnv
             in
-              eval(funExpr, funEnv)
+              eval funExpr funEnv
             end
           | _ => raise NotAFunc
       end
     | If(expr1, expr2, expr3) =>
       let
-        val value1 = eval(expr1, env)
+        val value1 = eval expr1 p
       in
         case value1 of
-          BoolV(b) => if b then eval(expr2, env) else eval(expr3, env)
+          BoolV(b) => if b then eval expr2 p else eval expr3 p
         | _ => raise Impossible
       end
     | Match (expr, matchExpr) =>
       if(matchExpr = []) then raise Impossible 
       else 
         let
-          val exprValue = eval(expr, env)
+          val exprValue = eval expr p
           val matchCond = fn (condExpr, resultExpr) => ( 
             case condExpr of
               NONE => true
             | SOME(e) => 
               let
-                val condValue = eval(e, env)
+                val condValue = eval e p
               in
                 (condValue = exprValue)
               end
@@ -73,12 +73,12 @@ fun eval (e:expr, env:plcVal env) : plcVal =
               val matchedExpr = hd(filteredList)
               val resultExpr = (#2 matchedExpr)
             in
-              eval(resultExpr, env)
+              eval resultExpr p
             end
         end
     | Prim1(operator, expr1) =>
       let
-        val value1 = eval(expr1, env)
+        val value1 = eval expr1 p
       in
         case operator of
           ("!") => let in
@@ -116,8 +116,8 @@ fun eval (e:expr, env:plcVal env) : plcVal =
       end
     | Prim2(operator, expr1, expr2) =>
       let
-        val value1 = eval(expr1, env)
-        val value2 = eval(expr2, env)
+        val value1 = eval expr1 p
+        val value2 = eval expr2 p
       in
         case operator of 
             ("&&") => let in
@@ -185,7 +185,7 @@ fun eval (e:expr, env:plcVal env) : plcVal =
       end
     | Item(index, expr1) =>
       let
-        val value1 = eval(expr1, env)
+        val value1 = eval expr1 p
       in
         case value1 of
           ListV(valueList) => 
