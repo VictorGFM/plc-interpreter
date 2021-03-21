@@ -42,19 +42,11 @@ fun testCases (sourceCode:string, expected:string) : string =
     | NotFunc => if (ExceptionMessageNotFunc = expected) then "V" else sourceCode
     | ListOutOfRange => if (ExceptionMessageListOutOfRange = expected) then "V" else sourceCode
     | OpNonList => if (ExceptionMessageOpNonList = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
-    |  => if ( = expected) then "V" else sourceCode
+    | Impossible => if (ExceptionMessageImpossible = expected) then "V" else sourceCode
     | HDEmptySeq => if (ExceptionMessageHDEmptySeq = expected) then "V" else sourceCode
+    | TLEmptySeq => if (ExceptionMessageTLEmptySeq = expected) then "V" else sourceCode
+    | ValueNotFoundInMatch => if (ExceptionMessageValueNotFoundInMatch = expected) then "V" else sourceCode
+    | NotAFunc => if (ExceptionMessageNotAFunc = expected) then "V" else sourceCode
 
 val results = map (fn (s,e) => testCases(s, e)) cases;
 

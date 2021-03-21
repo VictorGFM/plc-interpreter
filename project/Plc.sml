@@ -11,7 +11,7 @@ val ExceptionMessageNoMatchResults = "EXCEPTION: NO RESULTS FOR MATCH EXPRESSION
 val ExceptionMessageMatchResTypeDiff = "EXCEPTION: MATCH RETURNING DIFFERENT RESULT TYPES!"
 val ExceptionMessageMatchCondTypesDiff = "EXCEPTION: MATCH EXPRESSION TYPE DIFFER FROM CONDITION TYPE!"
 val ExceptionMessageCallTypeMisM = "EXCEPTION: WRONG ARGUMENT TYPE ON FUNCTION CALL!"
-val ExceptionMessageNotFunc = "EXCEPTION: TRYING TO CALL A NON FUNCTION TYPE!"
+val ExceptionMessageNotFunc = "EXCEPTION: TRYING TO CALL A NON FUNCTION TYPE! (TYPE CHECKER)"
 val ExceptionMessageListOutOfRange = "EXCEPTION: LIST INDEX OUT OF RANGE!"
 val ExceptionMessageOpNonList = "EXCEPTION: TRYING TO ACCESS INDEX OF A NON LIST EXPRESSION!"
 
@@ -20,7 +20,7 @@ val ExceptionMessageImpossible = "EXCEPTION: IMPOSSIBLE EXCEPTION!"
 val ExceptionMessageHDEmptySeq = "EXCEPTION: TRYING TO ACCESS HEAD OF EMPTY SEQUENCE!"
 val ExceptionMessageTLEmptySeq = "EXCEPTION: TRYING TO ACCESS TAIL OF EMPTY SEQUENCE!"
 val ExceptionMessageValueNotFoundInMatch = "EXCEPTION: VALUE NOT FOUND IN MATCH EXPRESSION!"
-val ExceptionMessageNotAFunc = "EXCEPTION: TRYING TO CALL A NON FUNCTION TYPE!!"
+val ExceptionMessageNotAFunc = "EXCEPTION: TRYING TO CALL A NON FUNCTION TYPE! (INTERPRETER)"
 
 fun run(e:expr) : string = 
     let
@@ -48,17 +48,3 @@ fun run(e:expr) : string =
     in
         val2string(exprValue) ^ " : " ^ type2string(exprType)
     end
-    
-        
-   (*  handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end
-    handle  => let val p = print(^"\n") in  end *)

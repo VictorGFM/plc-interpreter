@@ -76,9 +76,30 @@ val cases =
         (s, e)
     end
   ) ::
-  ((*If with different branch types*)
-    let val s = "if 3 = 2 then 7 else false";
-        val e = ExceptionMessageDiffBrTypes
+  ((*Match with SOME and NONE*)
+    let val s = "var x = 2; match x with | 0 -> 1 | _ -> -1 end";
+        val e = "~1 : Int"
+    in
+        (s, e)
+    end
+  )::
+  ((*Is sequence empty for empty sequence*)
+    let val s = "ise ([Int] [])";
+        val e = "true : Bool"
+    in
+        (s, e)
+    end
+  ) ::
+  ((*Len Function*) 
+    let val s = "fun rec len([Int] l): Int = if ise(l) then 0 else 1 + len(tl(l)); len(1::2::([Int] []))";
+        val e = "2 : Int"
+    in
+        (s, e)
+    end
+  ) ::
+  ((*Comparisson between not equality types*)
+    let val s = "var f = fn (Int x) => x end; (1, f, 3) = (1, f, 3)";
+        val e = ExceptionMessageNotEqTypes
     in
         (s, e)
     end
@@ -90,30 +111,79 @@ val cases =
         (s, e)
     end
   ) ::
-  (* ((*Match without condition*)
+  ((*Comparison between different types*)
+    let val s = "true = 7";
+        val e = ExceptionMessageNotEqTypes
+    in
+        (s, e)
+    end
+  ) :: 
+  ((*Wrong return type*)
+    let val s = "fun rec f (Int x) : Int = true; f(5)";
+        val e = ExceptionMessageWrongRetType
+    in
+        (s, e)
+    end
+  ) ::
+  ((*If with different branch types*)
+    let val s = "if 3 = 2 then 7 else false";
+        val e = ExceptionMessageDiffBrTypes
+    in
+        (s, e)
+    end
+  ) ::
+  ((*If condition not a boolean type*)
+    let val s = "if 3 then 7 else 5";
+        val e = ExceptionMessageIfCondNotBool
+    in
+        (s, e)
+    end
+  ) ::
+  ((*Match without condition*)
     let val s = "var x = 2; match x with end";
-        val e = "Exception"
+        val e = ExceptionMessageNoMatchResults
     in
         (s, e)
     end
-  ) :: *)
-  (* ((*Match with different codition types*)
-    let val s = "var x = 2; match x with | 7 -> 1 | false -> -1 end";
-        val e = "Exception"
-    in
-        (s, e)
-    end
-  ):: *)
-  (* ((*Match with different result types*)
+  ) ::
+  ((*Match with different result types*)
     let val s = "var x = 2; match x with | 0 -> 1 | 1 -> true end";
-        val e = "Exception"
+        val e = ExceptionMessageMatchResTypeDiff
     in
         (s, e)
     end
-  ):: *)
-  [ ((*Match with SOME and NONE*)
-    let val s = "var x = 2; match x with | 0 -> 1 | _ -> -1 end";
-        val e = "~1 : Int"
+  ) ::
+  ((*Match with different codition types*)
+    let val s = "var x = 2; match x with | 7 -> 1 | false -> -1 end";
+        val e = ExceptionMessageMatchCondTypesDiff
+    in
+        (s, e)
+    end
+  )::
+  ((*Call type mismatch exception*)
+    let val s = "fun f (Int x) = x; f(true)";
+        val e = ExceptionMessageCallTypeMisM
+    in
+        (s, e)
+    end
+  ) ::
+  ((*Calling a non function type*)
+    let val s = "var x = 7; x(7)";
+        val e = ExceptionMessageNotFunc
+    in
+        (s, e)
+    end
+  ) ::
+  ((*List index out of range*)
+    let val s = "var x = (1, 2, 3); x[7]";
+        val e = ExceptionMessageListOutOfRange
+    in
+        (s, e)
+    end
+  ) ::
+  [ ((*Index access of a non list type*)
+    let val s = "var x = 1; x[1]";
+        val e = ExceptionMessageOpNonList
     in
         (s, e)
     end

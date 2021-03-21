@@ -44,11 +44,9 @@ fun eval (e:expr, env:plcVal env) : plcVal =
     | If(expr1, expr2, expr3) =>
       let
         val value1 = eval(expr1, env)
-        val value2 = eval(expr2, env)
-        val value3 = eval(expr3, env)
       in
         case value1 of
-          BoolV(b) => if b then value2 else value3
+          BoolV(b) => if b then eval(expr2, env) else eval(expr3, env)
         | _ => raise Impossible
       end
     | Match (expr, matchExpr) =>
@@ -166,7 +164,7 @@ fun eval (e:expr, env:plcVal env) : plcVal =
                 (IntV(n1), IntV(n2)) => BoolV(n1 <= n2)
               | _ => raise Impossible
             end
-          | ("=") => let in (*TODO: check if list and sequence are of equality type*)
+          | ("=") => let in
               case (value1, value2) of
                 (IntV(n1), IntV(n2)) => BoolV(n1 = n2)
               | (BoolV(b1), BoolV(b2)) => BoolV(b1 = b2)

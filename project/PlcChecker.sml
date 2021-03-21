@@ -67,7 +67,7 @@ fun teval(e:expr, env:plcType env) : plcType =
               then raise DiffBrTypes 
               else type3
       end
-    | Match (expr, matchExpr) =>
+    | Match (expr, matchExpr) => 
       if(matchExpr = []) then raise NoMatchResults 
       else 
         let
@@ -94,7 +94,7 @@ fun teval(e:expr, env:plcType env) : plcType =
         val type1 = teval(expr1, env)
       in
         case operator of
-          ("!") => if(type1 = BoolT) then BoolT else raise CallTypeMisM (*TODO: check if its the correct exception to be raised*)
+          ("!") => if(type1 = BoolT) then BoolT else raise CallTypeMisM
         | ("-") => if(type1 = IntT) then IntT else raise CallTypeMisM
         | ("hd") => 
           let in
