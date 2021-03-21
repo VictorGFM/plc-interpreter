@@ -116,7 +116,7 @@ Comps : Expr COMMA Expr (Expr1::Expr2::[])
 | Expr COMMA Comps (Expr::Comps)
 
 MatchExpr : END ([])
-| PIPE CondExpr ARROW Expr MatchExpr ((CondExpr,Expr)::MatchExpr)
+| PIPE CondExpr ARROW Expr MatchExpr ((CondExpr, Expr)::MatchExpr)
 
 CondExpr : Expr (SOME(Expr))
 | UNDERSCORE (NONE)

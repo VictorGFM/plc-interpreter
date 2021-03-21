@@ -20,7 +20,45 @@ Control.Print.stringDepth := 1000;
 
 open PlcFrontEnd;
 
-val expr = fromString("(1,false,())");
-run(Letrec("f",BoolT,"x",BoolT,If (Var "x",ConI 11,ConI 22), Call (Var "f",ConB true)));
+use "testPlcCases.sml";
 
+fun testCases (sourceCode:string, expected:string) : string = 
+  let
+    val expr = fromString(sourceCode);
+    val observed = run(expr)
+  in
+    if (observed = expected) then "V" else sourceCode
+  end
+  handle EmptySeq => if (ExceptionMessageEmptySeq = expected) then "V" else sourceCode
+    | UnknownType => if (ExceptionMessageUnknownType = expected) then "V" else sourceCode
+    | NotEqTypes => if (ExceptionMessageNotEqTypes = expected) then "V" else sourceCode
+    | WrongRetType => if (ExceptionMessageWrongRetType = expected) then "V" else sourceCode
+    | DiffBrTypes => if (ExceptionMessageDiffBrTypes = expected) then "V" else sourceCode
+    | IfCondNotBool => if (ExceptionMessageIfCondNotBool = expected) then "V" else sourceCode
+    | NoMatchResults => if (ExceptionMessageNoMatchResults = expected) then "V" else sourceCode
+    | MatchResTypeDiff => if (ExceptionMessageMatchResTypeDiff = expected) then "V" else sourceCode
+    | MatchCondTypesDiff => if (ExceptionMessageMatchCondTypesDiff = expected) then "V" else sourceCode
+    | CallTypeMisM => if (ExceptionMessageCallTypeMisM = expected) then "V" else sourceCode
+    | NotFunc => if (ExceptionMessageNotFunc = expected) then "V" else sourceCode
+    | ListOutOfRange => if (ExceptionMessageListOutOfRange = expected) then "V" else sourceCode
+    | OpNonList => if (ExceptionMessageOpNonList = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    |  => if ( = expected) then "V" else sourceCode
+    | HDEmptySeq => if (ExceptionMessageHDEmptySeq = expected) then "V" else sourceCode
 
+val results = map (fn (s,e) => testCases(s, e)) cases;
+
+fun isAllTestsPassed [] = true
+  | isAllTestsPassed (h::t) = (h="V") andalso (isAllTestsPassed t);
+
+val isPlcCorrect = isAllTestsPassed(results);
