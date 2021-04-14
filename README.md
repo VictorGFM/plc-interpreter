@@ -16,5 +16,5 @@ ml-lex PlcLexer.lex
 Then the interpreter can be tested by running the testPlc.sml file with the following command:
 
 ```bash
-sml testParser.sml
+sml testPlc.sml
 ```
