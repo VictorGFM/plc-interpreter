@@ -1,6 +1,6 @@
 # plc-interpreter
 
-Plc programming language interpreter developed in the UFMG Programming Language discipline.
+Plc programming language interpreter developed in the Programming Language discipline at UFMG.
 
 ## Setup
 
